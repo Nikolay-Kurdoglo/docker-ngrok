@@ -30,8 +30,10 @@ else
 fi
 
 # Set the TLS binding flag
-if [ -n "$NGROK_BINDTLS" ]; then
-  ARGS="$ARGS -bind-tls=$NGROK_BINDTLS "
+if [ -n "$NGROK_BINDTLS" ] && [ "$NGROK_BINDTLS" = "true" ]; then
+  ARGS="$ARGS --scheme=https"
+elif [ -n "$NGROK_BINDTLS" ] && [ "$NGROK_BINDTLS" = "false" ]; then
+  ARGS="$ARGS --scheme=http"
 fi
 
 # Set the authorization token.
@@ -41,7 +43,7 @@ fi
 
 # Set the subdomain or hostname, depending on which is set
 if [ -n "$NGROK_HOSTNAME" ] && [ -n "$NGROK_AUTH" ]; then
-  ARGS="$ARGS -hostname=$NGROK_HOSTNAME "
+  ARGS="$ARGS --domain=$NGROK_HOSTNAME "
 elif [ -n "$NGROK_SUBDOMAIN" ] && [ -n "$NGROK_AUTH" ]; then
   ARGS="$ARGS -subdomain=$NGROK_SUBDOMAIN "
 elif [ -n "$NGROK_HOSTNAME" ] || [ -n "$NGROK_SUBDOMAIN" ]; then
@@ -70,7 +72,7 @@ if [ -n "$NGROK_HEADER" ]; then
 fi
 
 if [ -n "$NGROK_USERNAME" ] && [ -n "$NGROK_PASSWORD" ] && [ -n "$NGROK_AUTH" ]; then
-  ARGS="$ARGS -auth=$NGROK_USERNAME:$NGROK_PASSWORD "
+  ARGS="$ARGS --basic-auth=$NGROK_USERNAME:$NGROK_PASSWORD "
 elif [ -n "$NGROK_USERNAME" ] || [ -n "$NGROK_PASSWORD" ]; then
   if [ -z "$NGROK_AUTH" ]; then
     echo "You must specify a username, password, and Ngrok authentication token to use the custom HTTP authentication."
@@ -80,7 +82,7 @@ elif [ -n "$NGROK_USERNAME" ] || [ -n "$NGROK_PASSWORD" ]; then
 fi
 
 if [ -n "$NGROK_DEBUG" ]; then
-    ARGS="$ARGS -log stdout"
+    ARGS="$ARGS --log=stdout"
 fi
 
 # Set the port.
